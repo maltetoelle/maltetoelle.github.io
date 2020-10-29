@@ -1,0 +1,19 @@
+[
+ {
+  "author": ["Max-Heinrich Laves", "Malte Tölle", "Tobias Ortmaier"],
+  "title": "Uncertainty Estimation in Medical Image Denoising with Bayesian Deep Image Prior",
+  "year": 2020,
+  "conference": "MICCAI",
+  "link": "https://arxiv.org/abs/2008.08837",
+  "code": "https://github.com/mlaves/uncertainty-deep-image-prior",
+  "bibtex":
+  "@misc{laves2020uncertainty,\n\t
+         title={Uncertainty Estimation in Medical Image Denoising with Bayesian Deep Image Prior},\n\t
+         author={Max-Heinrich Laves and Malte Tölle and Tobias Ortmaier},\n\t
+         year={2020},\n\t
+         eprint={2008.08837},\n\t
+         archivePrefix={arXiv},\n\t
+         primaryClass={eess.IV}
+  }"
+ }
+]
