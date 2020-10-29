@@ -20,8 +20,13 @@ body {
     clear: both;
 }
 
-.nav-click {
+.nav-bar {
  width: 35%;
+}
+
+.header-title-div a {
+	display: block;
+	width: 100%;
 }
 
 .nav-click a {
@@ -45,15 +50,10 @@ body {
 
 .header-title {
  width: 100%;
- padding: 10px;
- font-size: 20px;
+ padding: 20px;
+ font-size: 25px;
  border-radius: 15px;
 }
-
-/* .header-title a {
- text-decoration: none;
- color: black;
-} */
 
 .nav-bar {
  display: flex;
@@ -65,9 +65,9 @@ body {
 
 .nav-bar a {
  display: block;
- padding: 12px;
+ padding: 8px;
  margin: 5px 0px;
- font-size: 15px;
+ font-size: 20px;
  text-decoration: none;
  color: black;
  /* border: 1px solid black; */
@@ -81,6 +81,12 @@ body {
 
 .content {
  margin: 100px 10px;
+	width: 100%;
+}
+
+.landing {
+	width: 100%;
+	max-width: 350px;
 }
 
 .greeting-and-profile-pic {
@@ -88,8 +94,20 @@ body {
  justify-content: center;
  align-items: center;
  width: 100%;
- margin-top: 20px;
+ margin-top: 50px;
 }
+
+// .landing {
+// 	padding: 20px;
+// }
+
+// .introduction h1 {
+// 	font-size: 50px;
+// }
+//
+// .introduction p {
+// 	font-size: 30px;
+// }
 
 .fast-facts {
  width: 50%;
@@ -110,7 +128,7 @@ body {
 }
 
 .fast-facts h1 {
- font-size: 35px;
+ font-size: 30px;
  width: 100%;
  text-align: center;
  margin: 0;
@@ -248,7 +266,7 @@ body {
  height: 30px;
 }
 
-@media (min-width: 400px) {
+@media screen and (min-width: 420px) {
  .footer-social-media {
   width: 50px;
   height: 50px;
@@ -305,23 +323,17 @@ body {
   margin: 150px 100px;
  }
 
- .landing {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
- }
+	.greeting {
+		font-size: 20px;
+	}
 
- .greeting-and-profile-pic {
-  margin-top: 0;
-  width: 50%;
-  padding-left: 100px;
-  border-left: 1px solid black;
- }
+	.introduction h1 {
+		font-size: 40px;
+	}
 
- .introduction {
-  width: 50%;
-  padding-right: 100px;
- }
+	.introduction p {
+		font-size: 18px;
+	}
 
  .publications {
   margin-top: 100px;
@@ -332,15 +344,6 @@ body {
  .footer-social-media {
   margin: 0 10px;
   width: 35px;
- }
-
- .nav-bar a {
-  font-size: 30px;
- }
-
- .header-title {
-  font-size: 40px;
-  margin: 20px;
  }
 
  /* .contact-pic {
@@ -368,7 +371,66 @@ body {
  }
 }
 
+@media (min-width: 800px) {
+
+	.content {
+	 // margin: 50px 10px;
+		padding: 0;
+		margin: 0;
+	}
+
+	.landing {
+		margin: 150px 50px;
+		width: 100%;
+	}
+
+ .greeting-and-profile-pic {
+  margin-top: 0;
+  width: 50%;
+  padding-left: 50px;
+  border-left: 1px solid black;
+ }
+
+ .introduction {
+  width: 80%;
+		padding: 0;
+  padding-right: 100px;
+		// padding: 400px;
+ }
+
+	.nav-bar a {
+  font-size: 20px;
+ }
+
+ .header-title {
+  font-size: 30px;
+		padding: 10px;
+		margin-left: 30px;
+ }
+
+}
+
+@media (min-width: 1200px) {
+
+	.landing {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+ }
+
+	.nav-bar a {
+  font-size: 30px;
+ }
+
+ .header-title {
+  font-size: 40px;
+  margin: 20px;
+ }
+
+}
+
 @media (min-width: 1400px) {
+
  .fast-facts h2 {
   font-size: 20px;
  }
