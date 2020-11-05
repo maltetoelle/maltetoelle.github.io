@@ -1,0 +1,24 @@
+---
+layout: post
+title:  "Stochastic Gradient Descent Langevin Dynamics"
+date:   2020-10-28 12:44:44 +0100
+categories: sgld
+---
+# Stochastic Gradient Descent Langevin Dynamics (SGLD)
+
+In the domain of learning from data $\mathcal{D}$ we generally distinguish between the frequentist and the Bayesian approach. Whilst the frequentist approach assumes one true solution for the model parameters $\boldsymbol{\theta}$ for the problem at hand, being Bayesian takes uncertainties into account. With the Bayesian approach we can express our knowledge about the model parameters prior of seeing any data. We can also express zero prior knowledge by using a uniform distribution assigning each parameter value the same probability. The more data the model sees, the more certain it is in its parameters, converging to the frequentist estimate when much data is observed.
+
+In the frequentist approach, also called Maximum Likelihood Estimation (MLE), each individual data point of $\mathcal{D}=\{\mathbf{x}_i,y_i\}$ with $N$ data points is modeled with a Gaussian distribution:
+
+$p(\mathbf{y}_i|\mathbf{x}_i, \boldsymbol{\theta}) = \frac{1}{\sigma\sqrt{2\pi}}\exp \left\{-\frac{1}{2\sigma^2}(y_i -\boldsymbol{\theta}^T\mathbf{x}_i)^2 \right\}$ ,
+
+where $\boldsymbol{\theta}$ denotes the model parameters. We are assuming a multidimensional output, but only a one-dimensional output for simplicity, though it actually can be of arbitrary dimension. Under the assumption of independent and identically distributed (i.i.d.) data, the probability for all data points factorizes (called the likelihood function):
+
+$p(\mathbf{y}|\mathbf{X},\boldsymbol{\theta}) = \prod_{i=1}^{N} p(\mathbf{y}_i|\mathbf{x}_i, \boldsymbol{\theta})$ ,
+
+where $\mathbf{X}$ denotes the matrix of all data points with each data point $\mathbf{x}_i$ as a row vector.
+
+
+```python
+
+```
