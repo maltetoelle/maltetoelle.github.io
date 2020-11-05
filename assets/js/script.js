@@ -8,31 +8,43 @@ $("a.bibtexs").click(function(evt) {
  }
 })
 
-// $('.nav-bar').find('a').click(function(){
-//     console.log(window.location.pathname)
-//     if (window.location.pathname == "/contact") {
-//      window.location.href = window.location.origin
-//     }
-//     console.log('fdsjlk')
-//     console.log('fdsjlk')
-//     console.log('fdsjlk')
-//     var $href = $(this).attr('href');
-//     var $anchor = $($href).offset();
-//     $anchor.top -= 110
-//     console.log($anchor)
-//     window.scrollTo($anchor.left,$anchor.top);
-//     return false;
-// });
-//
-// $('#intro-click').click(function(){
-//     var $href = $(this).attr('href');
-//     var $anchor = $($href).offset();
-//     $anchor.top -= 150
-//     window.scrollTo($anchor.left,$anchor.top);
-//     return false;
-// });
+var cookiesClicked = false
+var cookies = false
+
+function getCookieAgreement() {
+  if (cookiesClicked == false) {
+    $(".cookie-warning").css("bottom", $(".footer").height() + 30);
+    $(".cookie-blocker").css({
+     "position": "absolute",
+     "top": "0",
+     "bottom": "0",
+     "z-index": "500",
+     "width": "100%",
+     "height": $(".wrapper").height(),
+     "background-color": "gray",
+     "opacity": "0.5",
+    });
+
+   } else {
+    $(".cookie-blocker").css("display", "none");
+    $(".cookie-warning").css("display", "none");
+   }
+}
+
+$("#cookie-yes").click(() => {
+ cookies = true;
+ cookiesClicked = true;
+ getCookieAgreement();
+})
+
+$("#cookie-no").click(() => {
+ cookiesClicked = true;
+ getCookieAgreement();
+})
 
 $(document).ready(function () {
+
+    getCookieAgreement();
     // Read the cookie and if it's defined scroll to id
     var scroll = $.cookie('scroll');
     if(scroll){
@@ -73,16 +85,5 @@ $(document).ready(function () {
         $('html,body').animate({ scrollTop: targetOffset }, speed);
 
     }
-});
 
-// $("script[type='math/tex']").replaceWith(
-//   function(){
-//     var tex = $(this).text();
-//     return katex.renderToString(tex, {displayMode: false});
-// });
-//
-// $("script[type='math/tex; mode=display']").replaceWith(
-//   function(){
-//     var tex = $(this).text();
-//     return katex.renderToString(tex.replace(/%.*/g, ''), {displayMode: true});
-// });
+});

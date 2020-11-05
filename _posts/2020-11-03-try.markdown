@@ -5,7 +5,6 @@ date:   2020-10-27 12:44:44 +0100
 categories: linear regression
 ---
 
-# (Bayesian) Linear Regression
 For an introduction to deep learning it is generally best to start with the simplest example of linear regression. In linear regression we want to obtain a model that best describes the correlation between input data points $$\mathbf{x}$$ and output data points $$\mathbf{y}$$ with some model parameters. For the sake of visualization our output dimensionality is one and our input dimensionality is $$D$$:
 
 $$\hat{\mathbf{y}}_i = \theta_0 + \theta_1 x_1 + ... + \theta_D x_D ~,$$
@@ -542,7 +541,7 @@ for k, _no_samples in enumerate(no_samples):
 
 
 
-![png](linear_regression_files/linear_regression_11_4.png)
+![png](/assets/imgs/linear_regression_files/linear_regression_11_4.png)
 
 
 

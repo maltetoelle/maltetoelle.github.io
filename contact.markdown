@@ -1,5 +1,5 @@
 ---
-layout: wrapper
+layout: default
 title: Contact
 ---
 <h1 class="contact-header">Contact Infos</h1>
@@ -15,7 +15,7 @@ title: Contact
     <a href="mailto:malte.toelle@gmail.com">malte.toelle@gmail.com</a>
    </div>
    <div class="social-media-contact">
-    <a href="{{ root_url }}/assets//pdfs/CV.pdf" ><img src="{{ site.baseurl }}/assets/imgs/cv.svg" class="footer-social-media" /></a>
+    <a href="{{ root_url }}/assets//pdfs/CV.pdf" ><img src="{{ root_url }}/assets/imgs/cv.svg" class="footer-social-media" /></a>
     <a href="{{ root_url }}/assets//pdfs/CV.pdf" >Curriculum Vitae</a>
    </div>
    <div class="social-media-contact">
