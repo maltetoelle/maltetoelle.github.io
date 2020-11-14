@@ -1,0 +1,45 @@
+
+<div class="publications">
+ <h1 id="pubs">Publications</h1>
+ <!-- <p>I know, I do not have many publications yet, but I hope there will be many to come in the future.</p> -->
+ <div class="master-thesis">
+  <a href="/master-thesis"><h2 class="pub-title">A Bayesian Approach to Deep Image Prior for Medical Image Processing</h2></a>
+  <div class="infos-pub">
+   <p>Master Thesis</p>
+   <a href="https://github.com/maltetoelle/master-thesis-code" class="code-link">Code</a>
+   <a href="#" class="bibtexs">BibTex</a>
+  </div>
+  <pre class="bibtex-text">
+   Will be available when published.
+  </pre>
+ </div>
+ <br>
+
+ <ul class="pubs-list">
+ {% for pub in site.data.publications %}
+  <li><div class="publication">
+   <a href="{{ pub.link }}"><h2 class="pub-title">{{ pub.title }}</h2></a>
+   {% assign numAuthors = pub.author | size %}
+   {% for author in pub.author %}
+    {% if forloop.index == numAuthors %}
+     {{ author }}
+    {% else %}
+     {{ author }},
+    {% endif %}
+   {% endfor %}
+   <br>
+   <div class="infos-pub">
+    <p>{{ pub.conference }} {{ pub.year }}</p>
+    {% if pub.code %}
+     <p></p><a href="{{ pub.code }}" class="code-link">Code</a>
+    {% endif %}
+     <a href="#" class="bibtexs">BibTex</a>
+    </div>
+    <pre class="bibtex-text">
+     {{ pub.bibtex }}
+    </pre>
+  </div></li>
+ {% endfor %}
+ </ul>
+
+</div>

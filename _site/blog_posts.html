@@ -1,0 +1,15 @@
+
+<div class="publications blog-posts">
+ <h1 id="posts">Blog Posts</h1>
+ <p>Here you find my recent blog posts.</p>
+
+ <ul class="pubs-list">
+  {% for post in site.posts %}
+    <li class="publication">
+     {{ post.date | date: '%B %d, %Y' }}
+      <a href="{{ post.url }}"><h2 class="pub-title">{{ post.title }}</h2></a>
+    </li>
+  {% endfor %}
+ </ul>
+
+</div>
