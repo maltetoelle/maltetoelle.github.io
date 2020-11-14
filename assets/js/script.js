@@ -1,3 +1,5 @@
+// import {Cookies} from 'js-cookie'
+
 $("a.bibtexs").click(function(evt) {
  evt.preventDefault()
  var child = $(this).parent().parent().children('pre')
@@ -12,6 +14,7 @@ var cookiesClicked = false
 var cookies = false
 
 function getCookieAgreement() {
+  // Cookies.set('name', 'value')
   if (cookiesClicked == false) {
     $(".cookie-warning").css("bottom", $(".footer").height() + 30);
     $(".cookie-blocker").css({
@@ -65,6 +68,7 @@ $(document).ready(function () {
              console.log(href)
              if(window.location.pathname == "/contact"){
                  $.cookie('scroll', href);
+                 scroll = 'have it'
                  window.location.href = window.location.origin;
              }else{
                  scrollToID(href, 500);
