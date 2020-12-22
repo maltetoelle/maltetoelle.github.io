@@ -1,0 +1,14 @@
+((*- extends 'aritcle.tplx' -*))
+
+((* block author *))
+\author{Malte Tölle}
+((* endblock author *))
+
+((* block title *))
+\title{Linear Regression with Variational Inference and Markov Chain Monte Carlo Sampling}
+((* endblock title *))
+
+((* block bibliography *))
+\bibliographystyle{unsrt}
+\bibliography{bibliography}
+((* endblock bibliography *))
