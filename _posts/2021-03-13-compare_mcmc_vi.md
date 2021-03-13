@@ -7,11 +7,11 @@ categories: linear regression vi mcmc
 
 <a href="https://maltetoelle.github.io/linear/regression/2020/10/27/try.html">Here</a> you can fing more in depth information about the topic of linear regression in general. You might want to check it out, if you are unfamiliar with it. Here we will only review the most basic intuitions. In this post we will revisit two methods for approximating the intractable posterior in Bayesian inference, namely variational inference (VI) and Markov chain Monte Carlo (MCMC) sampling. While the latter is able to approximate the posterior exactly, it takes longer to converge. This can be eliminated with variational inference at the cost of no exact approximation. But more to come.
 
-Given a dataset $\mathcal{D}=\{x_i,y_i\}$ with $N$ observations and a model with parameters $\boldsymbol{\theta}$ we want to find the best estimate for the true value for $y$:
+Given a dataset $$\mathcal{D}=\{x_i,y_i\}$$ with $N$ observations and a model with parameters $$\boldsymbol{\theta}$$ we want to find the best estimate for the true value for $$y$$:
 
 $$\hat{y} = \theta_0 x^0 + \theta_1 x + \theta_2 x^2 + ... \theta_M x^M = \boldsymbol{\theta}^T\boldsymbol{\Phi} ~,$$
 
-where we defined $\boldsymbol{\Phi} = (\Phi_0(x_i),...,\Phi_M(x_i))$ to be a $N\times M$ matrix with $\Phi_p(x_i)=x_i^p$ of and $\hat{y}$ denotes the output of our model. Since all real world data is corrupted or distorted by noise coming from different sources (e.g. limitations in measurement tools), the true observations are pertubed with noise $\epsilon$, which is assumed to be a Gaussian with zero mean and variance $\sigma^2$:
+where we defined $$\boldsymbol{\Phi} = (\Phi_0(x_i),...,\Phi_M(x_i))$$ to be a $$N\times M$$ matrix with $$\Phi_p(x_i)=x_i^p$$ of and $$\hat{y}$$ denotes the output of our model. Since all real world data is corrupted or distorted by noise coming from different sources (e.g. limitations in measurement tools), the true observations are pertubed with noise $\epsilon$, which is assumed to be a Gaussian with zero mean and variance $$\sigma^2$$:
 
 $$y_i=\boldsymbol{\theta}^T\mathbf{x}_i + \epsilon_i \quad \textrm{with} \quad \epsilon_i \sim \mathcal{N}(0,\sigma^2) ~.$$
 
@@ -23,12 +23,12 @@ Assuming i.i.d. data points the probability of all points called likelihood fact
 
 $$p(\mathbf{y}|\boldsymbol{\Phi},\boldsymbol{\theta}) = \prod_i p(y_i|\Phi_i,\boldsymbol{\theta}) = \sum_i \log p(y_i|\Phi_i,\boldsymbol{\theta}) ~,$$
 
-where $\sigma^2$ is absorbed into $\boldsymbol{\theta}$ making it a variable of our model. Derivating for $\boldsymbol{\theta}$ and setting the derivative to 0 yields the maximum likelihood estimate (MLE). In contrast to MLE variational inference (VI) and Markov chain Monte Carlo (MCMC) sampling provide measures for certainty in the proposed parameters by making use of Bayes' theroem:
+where $$\sigma^2$$ is absorbed into $$\boldsymbol{\theta}$$ making it a variable of our model. Derivating for $$\boldsymbol{\theta}$$ and setting the derivative to 0 yields the maximum likelihood estimate (MLE). In contrast to MLE variational inference (VI) and Markov chain Monte Carlo (MCMC) sampling provide measures for certainty in the proposed parameters by making use of Bayes' theroem:
 
 $$p(\boldsymbol{\theta}|\boldsymbol{\Phi},\mathbf{y})= \frac{p(\mathbf{y}|\boldsymbol{\Phi},\boldsymbol{\theta})p(\boldsymbol{\theta})}{p(\mathbf{y}|\boldsymbol{\Phi})}~, \\\textrm{which speaks}\quad \textrm{posterior} = \frac{\textrm{likelihood } \times \textrm{ prior}}{\textrm{evidence}} ~.$$
 
-While the likelihood is the one from above, we introduce three new terms here: the posterior, prior, and evidence. The likelihood is multiplied by a prior, a distribution over $\boldsymbol{\theta}$, that quantifies our believe in the model parameters prior to any training. We can also express zero prior knowledge by using a uniform distribution or a fairly wide Gaussian, when we assume our parameters to have Gaussian distributions. When we have computed the product of likelihood and prior, the evidence normalizes that product to obtain a valid probability distribution. The evidence can be seen as probability for seeing that particular data. After we have performed these computations, we obtain the posterior: the probability distribution of the parameters after seeing data.
-For a new data point $(x_∗, y_*)$ the prediction of the model is obtained by considering
+While the likelihood is the one from above, we introduce three new terms here: the posterior, prior, and evidence. The likelihood is multiplied by a prior, a distribution over $$\boldsymbol{\theta}$$, that quantifies our believe in the model parameters prior to any training. We can also express zero prior knowledge by using a uniform distribution or a fairly wide Gaussian, when we assume our parameters to have Gaussian distributions. When we have computed the product of likelihood and prior, the evidence normalizes that product to obtain a valid probability distribution. The evidence can be seen as probability for seeing that particular data. After we have performed these computations, we obtain the posterior: the probability distribution of the parameters after seeing data.
+For a new data point $$(x_∗, y_*)$$ the prediction of the model is obtained by considering
 the predictions made using all possible parameter setting, weighted by their posterior
 probability:
 
@@ -55,7 +55,7 @@ matplotlib.rcParams['text.latex.preamble'] = r'\usepackage{bm}'
 ```
 
 ### Generating example data
-$y = \theta_0 + \theta_1 x + \epsilon = -1 + x + \epsilon \quad \textrm{with} \quad \epsilon \sim \mathcal{N}(0,0.15)$ .
+$$y = \theta_0 + \theta_1 x + \epsilon = -1 + x + \epsilon \quad \textrm{with} \quad \epsilon \sim \mathcal{N}(0,0.15)$$ .
 
 
 ```python
@@ -87,9 +87,9 @@ plt.show()
 
 ### Markov Chain Monte Carlo Sampling
 
-One popular technique for approximating the intractable posterior is MCMC sampling, contrary to other methods it makes no assumption concerning the form of the distribution, such as wether it can be approximated by a multivariate Gaussian. They only assume the posterior $p(\boldsymbol{\theta}|\boldsymbol{\Phi},\mathbf{y})$ can be calculated up to normalization constant $Z$ meaning $p(\boldsymbol{\theta}|\boldsymbol{\Phi},\mathbf{y})=\tilde{p}(\boldsymbol{\theta}|\boldsymbol{\Phi},\mathbf{y})/Z$, where $Z$ denotes the evidence in our case (<a href="http://users.isr.ist.utl.pt/~wurmd/Livros/school/Bishop%20-%20Pattern%20Recognition%20And%20Machine%20Learning%20-%20Springer%20%202006.pdf">Bishop 2006</a>).
+One popular technique for approximating the intractable posterior is MCMC sampling, contrary to other methods it makes no assumption concerning the form of the distribution, such as wether it can be approximated by a multivariate Gaussian. They only assume the posterior $$p(\boldsymbol{\theta}|\boldsymbol{\Phi},\mathbf{y})$$ can be calculated up to normalization constant $$Z$$ meaning $$p(\boldsymbol{\theta}|\boldsymbol{\Phi},\mathbf{y})=\tilde{p}(\boldsymbol{\theta}|\boldsymbol{\Phi},\mathbf{y})/Z$$, where $$Z$$ denotes the evidence in our case (<a href="http://users.isr.ist.utl.pt/~wurmd/Livros/school/Bishop%20-%20Pattern%20Recognition%20And%20Machine%20Learning%20-%20Springer%20%202006.pdf">Bishop 2006</a>).
 
-In general, sampling methods try to find the expectation of some function $\mathbf{f}_{\boldsymbol{\theta}}$ w.r.t. the posterior distribution for the model parameter:
+In general, sampling methods try to find the expectation of some function $$\mathbf{f}_{\boldsymbol{\theta}}$$ w.r.t. the posterior distribution for the model parameter:
 
 $$\mathbb{E}(\mathbf{f}) = \int \mathbf{f}_{\boldsymbol{\theta}}(\mathbf{x}_*)p(\boldsymbol{\theta}|\boldsymbol{\Phi},\mathbf{y})d\boldsymbol{\theta} ~.$$
 
@@ -101,13 +101,13 @@ Similar, the variance can be denoted by
 
 $$\textrm{Var}[\mathbf{f}] = \frac{1}{M} \mathbb{E}[(\mathbf{f}-\mathbb{E}[\mathbf{f}])^2] ~,$$
 
-if the generated samples from the posterior $\boldsymbol{\theta}_i$ are independent. For complicated posterior distributions this is mostly impossible, but it still gives an unbiased estimate, if the number of generated samples is high enough (<a href="https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.446.9306&rep=rep1&type=pdf">Neal 1996</a>).
+if the generated samples from the posterior $$\boldsymbol{\theta}_i$$ are independent. For complicated posterior distributions this is mostly impossible, but it still gives an unbiased estimate, if the number of generated samples is high enough (<a href="https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.446.9306&rep=rep1&type=pdf">Neal 1996</a>).
 
-To generate a set of dependent weights $\boldsymbol{\theta}_i$ a Markov chain can be utilized that has
-the posterior $p(\boldsymbol{\theta}|\boldsymbol{\Phi},\mathbf{y})$ as its equilibrium distribution. Markov Chains are a sequence of events, where the probability of one event depends only on the state of the previous one. So, one
-samples from a proposal distribution $q(\boldsymbol{\theta}|\boldsymbol{\theta}_i)$ and maintains a record of the current state $\boldsymbol{\theta}_i$. A Markov chain is defined by giving an initial distribution for the
-first state of the chain $\boldsymbol{\theta}_1$ and a transition distribution for a new state $\boldsymbol{\theta}_{i+1}$ following from the current state $\boldsymbol{\theta}_i$. A stationary distribution q is established if the distribution
-given by state $\boldsymbol{\theta}_{i+1}$ is the same as with state $\boldsymbol{\theta}_i$. If the drawn samples are dependent then early drawn samples need to be discarded, since they usually are not representatives
+To generate a set of dependent weights $$\boldsymbol{\theta}_i$$ a Markov chain can be utilized that has
+the posterior $$p(\boldsymbol{\theta}|\boldsymbol{\Phi},\mathbf{y})$$ as its equilibrium distribution. Markov Chains are a sequence of events, where the probability of one event depends only on the state of the previous one. So, one
+samples from a proposal distribution $$q(\boldsymbol{\theta}|\boldsymbol{\theta}_i)$$ and maintains a record of the current state $$\boldsymbol{\theta}_i$$. A Markov chain is defined by giving an initial distribution for the
+first state of the chain $$\boldsymbol{\theta}_1$$ and a transition distribution for a new state $$\boldsymbol{\theta}_{i+1}$$ following from the current state $$\boldsymbol{\theta}_i$$. A stationary distribution q is established if the distribution
+given by state $$\boldsymbol{\theta}_{i+1}$$ is the same as with state $$\boldsymbol{\theta}_i$$. If the drawn samples are dependent then early drawn samples need to be discarded, since they usually are not representatives
 of the equilibrium distribution referred to as burn in phase. If the samples are dependent
 the chain also needs much longer to reach its equilibrium distribution (<a href="https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.446.9306&rep=rep1&type=pdf">Neal 1996</a>).
 
@@ -115,7 +115,7 @@ A popular algorithm for MCMC sampling is Metropolis-Hastings (<a href="https://b
 
 $$A_i(\boldsymbol{\theta}_*,\boldsymbol{\theta}_i) = \textrm{min} \left( 1, \frac{q(\boldsymbol{\theta}_i|\boldsymbol{\theta}_*)\tilde{p}(\boldsymbol{\theta}_*)}{q(\boldsymbol{\theta}_*|\boldsymbol{\theta}_i)\tilde{p}(\boldsymbol{\theta}_i)}  \right) ~,$$
 
-where $\boldsymbol{\theta}_i$ denotes the current state and $\boldsymbol{\theta}_*$ the drawn proposal state, $\tilde{p}(\boldsymbol{\theta})$ is the prior of the model parameters. The normalization constants cancel out each other. After the acceptance probability is calculated, a random number $r$ is drawn from a Uniform distribution $r \sim \mathcal{U}(0,1)$. If $A_i > r$ the proposal state is accepted.
+where $$\boldsymbol{\theta}_i$$ denotes the current state and $$\boldsymbol{\theta}_*$$ the drawn proposal state, $$\tilde{p}(\boldsymbol{\theta})$$ is the prior of the model parameters. The normalization constants cancel out each other. After the acceptance probability is calculated, a random number $$r$$ is drawn from a Uniform distribution $$r \sim \mathcal{U}(0,1)$$. If $$A_i > r$$ the proposal state is accepted.
 
 
 ```python
@@ -179,7 +179,7 @@ $$\textrm{H}[p]=-\int p(x) \log p(x) \, \mathrm{d}x ~,$$
 
 which takes as input a probability distribution and returns a value. The derivative of a function describes how much the output value changes as we make infinitesimal changes to the input value. Consequently, the derivative of a functional describes how much the output value changes, if we make infinitesimal changes to the function. Our goal is to find the function that minimizes the functional. Since many functions (such as neural networks) are very complex because of their high number of parameters, they lend themselves to approximation by restricting the range of functions over which the optimization is performed.
 
-In the fully Bayesian treatment of VI all parameters are given prior distributions, where $\boldsymbol{\theta}$ are our parameters (and all latent variables) and $\mathbf{X}$ are our observed variables. Our probabilistic model is given by the joint distribution $p(\mathbf{X},\boldsymbol{\theta})$. Our goal is to find approximations for the posterior the evidence from Bayes theorem. We do so by approximating our intractable posterior distribution $p(\boldsymbol{\theta}|\mathbf{X},\mathbf{y})$ with a simpler distribution $q(\boldsymbol{\theta})$ from a family of distributions $\mathcal{Q}$ e.g. the multivariate Gaussian. The optimization objective is then given by the Kullback-Leibler (KL) divergence between our approximate and the true posterior:
+In the fully Bayesian treatment of VI all parameters are given prior distributions, where $$\boldsymbol{\theta}$$ are our parameters (and all latent variables) and $$\mathbf{X}$$ are our observed variables. Our probabilistic model is given by the joint distribution $$p(\mathbf{X},\boldsymbol{\theta})$$. Our goal is to find approximations for the posterior the evidence from Bayes theorem. We do so by approximating our intractable posterior distribution $$p(\boldsymbol{\theta}|\mathbf{X},\mathbf{y})$$ with a simpler distribution $$q(\boldsymbol{\theta})$$ from a family of distributions $$\mathcal{Q}$$ e.g. the multivariate Gaussian. The optimization objective is then given by the Kullback-Leibler (KL) divergence between our approximate and the true posterior:
 
 \begin{equation*}
 F(q):=\mathrm{KL}(q(\boldsymbol{\theta})||p(\boldsymbol{\theta}|\mathcal{D}))=\int q(\boldsymbol{\theta})\log \frac{q(\boldsymbol{\theta})}{p(\boldsymbol{\theta}|\mathcal{D})}\,\mathrm{d}\boldsymbol{\theta} \longrightarrow \underset{q(\boldsymbol{\theta}) \in \mathcal{Q}}{\min} ~.
@@ -222,7 +222,7 @@ for ax, title in zip(axs, [r'$\mathrm{KL}(q(\bm{\theta})||p(\bm{\theta}))$',
 
 ### Bayesian Linear Regression with Variational Inference
 
-We perform Bayesian linear regression on the same model already used in the blog post about <a href="https://maltetoelle.github.io/linear/regression/2020/10/27/try.html">Bayesian linear regression</a> using Bayes theorem. Recall the likelihood for our observed target variables $\mathbf{y}$ and the prior distribution for our model parameters $\boldsymbol{\theta}$ are given by
+We perform Bayesian linear regression on the same model already used in the blog post about <a href="https://maltetoelle.github.io/linear/regression/2020/10/27/try.html">Bayesian linear regression</a> using Bayes theorem. Recall the likelihood for our observed target variables $$\mathbf{y}$$ and the prior distribution for our model parameters $$\boldsymbol{\theta}$$ are given by
 
 $$
 \begin{aligned}
@@ -231,7 +231,7 @@ p(\boldsymbol{\theta}|\alpha) &= \mathcal{N}\left( \mathbf{0},\alpha^{-1}\mathbf
 \end{aligned}
 $$
 
-with $\Phi_n=\Phi(x_n)=(x_n^0,x_n^1,...,x_n^{M})^T$ where $M$ denotes the degree of the fitted polynomial and $\mathbf{I}_{M+1}$ denotes the identity matrix of size $M+1$. We now introduce prior distributions over $\alpha$ and $\beta$. The conjugate prior for Gaussian distributions is the Wishart distribution or in the one dimensional case the Gamma distribution:
+with $$\Phi_n=\Phi(x_n)=(x_n^0,x_n^1,...,x_n^{M})^T$$ where $$M$$ denotes the degree of the fitted polynomial and $$\mathbf{I}_{M+1}$$ denotes the identity matrix of size $$M+1$$. We now introduce prior distributions over $$\alpha$$ and $$\beta$$. The conjugate prior for Gaussian distributions is the Wishart distribution or in the one dimensional case the Gamma distribution:
 
 $$
 \begin{aligned}
@@ -246,7 +246,7 @@ $$
 p(\mathbf{y},\boldsymbol{\theta},\alpha,\beta) = p(\mathbf{y}|\boldsymbol{\theta},\beta) p(\boldsymbol{\theta}|\alpha) p(\beta) p(\alpha) ~.
 $$
 
-By using the mean field approximation the approximation of the posterior $p(\boldsymbol{\theta},\alpha,\beta)$ is given by the factorization
+By using the mean field approximation the approximation of the posterior $$p(\boldsymbol{\theta},\alpha,\beta)$$ is given by the factorization
 
 $$
 q(\boldsymbol{\theta},\alpha,\beta)=q(\boldsymbol{\theta})q(\alpha)q(\beta) ~.
@@ -254,9 +254,9 @@ $$
 
 We can find the optimal variational parameters for each of the above distributions by making use of Eq. (4). For each factor, we take the log of the joint distribution over all variables and then average w.r.t. to those variables not in the factor.
 
-#### Variational density for $\alpha$
+#### Variational density for $$\alpha$$
 
-The log of our optimal variational density $q^*(\alpha)$ is given by
+The log of our optimal variational density $$q^*(\alpha)$$ is given by
 
 $$
 \begin{aligned}
@@ -265,7 +265,7 @@ $$
 \end{aligned}
 $$
 
-We notice the above as the parameters of a log Gamma distribution, so, we can perform coefficient comparison and find the optimal variational distribution for $\alpha$ to be
+We notice the above as the parameters of a log Gamma distribution, so, we can perform coefficient comparison and find the optimal variational distribution for $$\alpha$$ to be
 
 $$
 q^*(\alpha) = \textrm{Gam}(\alpha|a_N,b_N) ~,
@@ -280,9 +280,9 @@ b_N &= b_0 + \frac{1}{2}\mathbb{E}\left[ \boldsymbol{\theta}^T\boldsymbol{\theta
 \end{aligned}
 $$
 
-#### Variational density for $\boldsymbol{\theta}$
+#### Variational density for $$\boldsymbol{\theta}$$
 
-Similarly, the log of our optimal variational density $q^*(\theta)$ is given by
+Similarly, the log of our optimal variational density $$q^*(\theta)$$ is given by
 
 $$
 \begin{aligned}
@@ -308,9 +308,9 @@ $$
 \end{aligned}
 $$
 
-#### Variational Density for $\beta$
+#### Variational Density for $$\beta$$
 
-As for $\alpha$ and $\boldsymbol{\theta}$, the optimal variational density $q^*(\beta)$ is given by
+As for $$\alpha$$ and $$\boldsymbol{\theta}$$, the optimal variational density $$q^*(\beta)$$ is given by
 
 $$
 \begin{aligned}
@@ -341,7 +341,7 @@ $$
 
 #### Estimating the Missing Moments
 
-The missing moments of the Gamma distributions for $\alpha$ and $\beta$ can be easily estimated from the definition of the distribution.
+The missing moments of the Gamma distributions for $$\alpha$$ and $$\beta$$ can be easily estimated from the definition of the distribution.
 
 $$
 \begin{aligned}
@@ -353,11 +353,11 @@ $$
 \end{aligned}
 $$
 
-VI for linear regression is performed by cyclically estimating the parameters $a_N$, $b_N$, $c_N$, $d_N$, $\mathbf{m}_N$, and $\mathbf{S}_N$ with the corresponding update formulas. Which can be done in a small number of lines in code compared to the long derivations above. But before we take a look at the code, we must examine the predictive distribution of the model.
+VI for linear regression is performed by cyclically estimating the parameters $$a_N$$, $$b_N$$, $$c_N$$, $$d_N$$, $$\mathbf{m}_N$$, and $$\mathbf{S}_N$$ with the corresponding update formulas. Which can be done in a small number of lines in code compared to the long derivations above. But before we take a look at the code, we must examine the predictive distribution of the model.
 
 #### Predictive Distribution
 
-The predictive distribution for new data points $(\mathbf{x}_*,\mathbf{y}_*)$ can easily be evaluated using the Gaussian variational posterior for the parameters
+The predictive distribution for new data points $$(\mathbf{x}_*,\mathbf{y}_*)$$ can easily be evaluated using the Gaussian variational posterior for the parameters
 
 $$
 \begin{aligned}
