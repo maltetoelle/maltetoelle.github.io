@@ -87,7 +87,7 @@ plt.show()
 
 ### Markov Chain Monte Carlo Sampling
 
-One popular technique for approximating the intractable posterior is MCMC sampling, contrary to other methods it makes no assumption concerning the form of the distribution, such as wether it can be approximated by a multivariate Gaussian. They only assume the posterior $$p(\boldsymbol{\theta}|\boldsymbol{\Phi},\mathbf{y})$$ can be calculated up to normalization constant $$Z$$ meaning $$p(\boldsymbol{\theta}|\boldsymbol{\Phi},\mathbf{y})=\tilde{p}(\boldsymbol{\theta}|\boldsymbol{\Phi},\mathbf{y})/Z$$, where $$Z$$ denotes the evidence in our case (<a href="http://users.isr.ist.utl.pt/~wurmd/Livros/school/Bishop%20-%20Pattern%20Recognition%20And%20Machine%20Learning%20-%20Springer%20%202006.pdf">Bishop 2006</a>).
+One popular technique for approximating the intractable posterior is MCMC sampling, contrary to other methods it makes no assumption concerning the form of the distribution, such as wether it can be approximated by a multivariate Gaussian. They only assume the posterior $$p(\boldsymbol{\theta}|\boldsymbol{\Phi},\mathbf{y})$$ can be calculated up to normalization constant $$Z$$ meaning , where $$Z$$ denotes the evidence in our case (<a href="http://users.isr.ist.utl.pt/~wurmd/Livros/school/Bishop%20-%20Pattern%20Recognition%20And%20Machine%20Learning%20-%20Springer%20%202006.pdf">Bishop 2006</a>).
 
 In general, sampling methods try to find the expectation of some function $$\mathbf{f}_{\boldsymbol{\theta}}$$ w.r.t. the posterior distribution for the model parameter:
 
@@ -216,7 +216,7 @@ for ax, title in zip(axs, [r'$\mathrm{KL}(q(\bm{\theta})||p(\bm{\theta}))$',
 
 
 
-![png](compare_mcmc_vi_files/compare_mcmc_vi_7_0.png)
+![png](/assets/imgs/compare_mcmc_vi_files/compare_mcmc_vi_7_0.png)
 
 
 
