@@ -1,0 +1,687 @@
+
+<!DOCTYPE html>
+<html lang="en">
+head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width,initial-scale=1">
+ <title> Malte Tölle </title>
+ <link href="https://fonts.googleapis.com/css?family=Roboto+Mono|Roboto+Slab:300|Roboto:500" rel="stylesheet">
+ <link rel="stylesheet" href="/assets/css/styles.css">
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+ <script src="/assets/js/jquery-cookie/src/jquery.cookie.js" type="text/javascript"></script>
+ <script type="text/x-mathjax-config">
+   MathJax.Hub.Config({
+    "HTML-CSS": {
+     styles: {
+
+       ".MJXc-display": {
+         // "background-color": "#FFFF88",
+         // "color":   "#CC0000",
+         // "border":  "1px solid #CC0000",
+         // "padding": "1px 3px",
+         // "font-family": "serif",
+         // "font-style": "normal",
+         "font-size":  "10%"
+       },
+
+       ".MathJax_Preview": {color: "#888888"},
+
+     }
+    },
+     extensions: [
+       "MathMenu.js",
+       "MathZoom.js",
+       "AssistiveMML.js",
+       "a11y/accessibility-menu.js"
+     ],
+     jax: ["input/TeX", "output/CommonHTML"],
+     TeX: {
+       extensions: [
+         "AMSmath.js",
+         "AMSsymbols.js",
+         "noErrors.js",
+         "noUndefined.js",
+       ]
+     }
+
+   });
+ </script>
+ <script type="text/javascript" async
+   src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+ </script>
+</head>
+
+  <!--<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Linear Regression with Variational Inference and Markov Chain Monte Carlo Sampling | Malte Tölle</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Linear Regression with Variational Inference and Markov Chain Monte Carlo Sampling" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Here you can fing more in depth information about the topic of linear regression in general. You might want to check it out, if you are unfamiliar with it. Here we will only review the most basic intuitions. In this post we will revisit two methods for approximating the intractable posterior in Bayesian inference, namely variational inference (VI) and Markov chain Monte Carlo (MCMC) sampling. While the latter is able to approximate the posterior exactly, it takes longer to converge. This can be eliminated with variational inference at the cost of no exact approximation. But more to come." />
+<meta property="og:description" content="Here you can fing more in depth information about the topic of linear regression in general. You might want to check it out, if you are unfamiliar with it. Here we will only review the most basic intuitions. In this post we will revisit two methods for approximating the intractable posterior in Bayesian inference, namely variational inference (VI) and Markov chain Monte Carlo (MCMC) sampling. While the latter is able to approximate the posterior exactly, it takes longer to converge. This can be eliminated with variational inference at the cost of no exact approximation. But more to come." />
+<link rel="canonical" href="http://localhost:4000/linear/regression/vi/mcmc/2020/11/18/compare_mcmc_vi.html" />
+<meta property="og:url" content="http://localhost:4000/linear/regression/vi/mcmc/2020/11/18/compare_mcmc_vi.html" />
+<meta property="og:site_name" content="Malte Tölle" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-11-18T11:47:00+01:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Linear Regression with Variational Inference and Markov Chain Monte Carlo Sampling" />
+<script type="application/ld+json">
+{"mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/linear/regression/vi/mcmc/2020/11/18/compare_mcmc_vi.html"},"url":"http://localhost:4000/linear/regression/vi/mcmc/2020/11/18/compare_mcmc_vi.html","headline":"Linear Regression with Variational Inference and Markov Chain Monte Carlo Sampling","dateModified":"2020-11-18T11:47:00+01:00","datePublished":"2020-11-18T11:47:00+01:00","description":"Here you can fing more in depth information about the topic of linear regression in general. You might want to check it out, if you are unfamiliar with it. Here we will only review the most basic intuitions. In this post we will revisit two methods for approximating the intractable posterior in Bayesian inference, namely variational inference (VI) and Markov chain Monte Carlo (MCMC) sampling. While the latter is able to approximate the posterior exactly, it takes longer to converge. This can be eliminated with variational inference at the cost of no exact approximation. But more to come.","@type":"BlogPosting","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Malte Tölle" /></head>
+-->
+
+  <body><div class="header">
+ <div class="nav-click header-title-div">
+ <a href="#intro" class="header-title"> Malte Tölle </a> </div>
+ <div class="nav-bar nav-click">
+   <a href="#pubs">Pubs</a>
+   <a href="#posts">Blog</a>
+   <a href="/contact">Contact</a>
+ </div>
+</div>
+<main class="page-content" aria-label="Content">
+     <div class="cookie-blocker"></div>
+     <div class="wrapper">
+      <div class="content">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Linear Regression with Variational Inference and Markov Chain Monte Carlo Sampling</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2020-11-18T11:47:00+01:00" itemprop="datePublished">
+        Nov 18, 2020
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><a href="https://maltetoelle.github.io/linear/regression/2020/10/27/try.html">Here</a> you can fing more in depth information about the topic of linear regression in general. You might want to check it out, if you are unfamiliar with it. Here we will only review the most basic intuitions. In this post we will revisit two methods for approximating the intractable posterior in Bayesian inference, namely variational inference (VI) and Markov chain Monte Carlo (MCMC) sampling. While the latter is able to approximate the posterior exactly, it takes longer to converge. This can be eliminated with variational inference at the cost of no exact approximation. But more to come.</p>
+
+<p>Given a dataset \(\mathcal{D}=\{x_i,y_i\}\) with $N$ observations and a model with parameters \(\boldsymbol{\theta}\) we want to find the best estimate for the true value for \(y\):</p>
+
+\[\hat{y} = \theta_0 x^0 + \theta_1 x + \theta_2 x^2 + ... \theta_M x^M = \boldsymbol{\theta}^T\boldsymbol{\Phi} ~,\]
+
+<p>where we defined \(\boldsymbol{\Phi} = (\Phi_0(x_i),...,\Phi_M(x_i))\) to be a \(N\times M\) matrix with \(\Phi_p(x_i)=x_i^p\) of and \(\hat{y}\) denotes the output of our model. Since all real world data is corrupted or distorted by noise coming from different sources (e.g. limitations in measurement tools), the true observations are pertubed with noise $\epsilon$, which is assumed to be a Gaussian with zero mean and variance \(\sigma^2\):</p>
+
+\[y_i=\boldsymbol{\theta}^T\mathbf{x}_i + \epsilon_i \quad \textrm{with} \quad \epsilon_i \sim \mathcal{N}(0,\sigma^2) ~.\]
+
+<p>Thus, we can model each point with a Gaussian distribution</p>
+
+\[p(y_i|\Phi_i,\boldsymbol{\theta},\sigma^2) = \frac{1}{\sigma\sqrt{2\pi}}\exp \left\{-\frac{1}{2\sigma^2}(y_i - \boldsymbol{\theta}^T\Phi_i)^2 \right\} ~.\]
+
+<p>Assuming i.i.d. data points the probability of all points called likelihood factorizes:</p>
+
+\[p(\mathbf{y}|\boldsymbol{\Phi},\boldsymbol{\theta}) = \prod_i p(y_i|\Phi_i,\boldsymbol{\theta}) = \sum_i \log p(y_i|\Phi_i,\boldsymbol{\theta}) ~,\]
+
+<p>where \(\sigma^2\) is absorbed into \(\boldsymbol{\theta}\) making it a variable of our model. Derivating for \(\boldsymbol{\theta}\) and setting the derivative to 0 yields the maximum likelihood estimate (MLE). In contrast to MLE variational inference (VI) and Markov chain Monte Carlo (MCMC) sampling provide measures for certainty in the proposed parameters by making use of Bayes’ theroem:</p>
+
+\[p(\boldsymbol{\theta}|\boldsymbol{\Phi},\mathbf{y})= \frac{p(\mathbf{y}|\boldsymbol{\Phi},\boldsymbol{\theta})p(\boldsymbol{\theta})}{p(\mathbf{y}|\boldsymbol{\Phi})}~, \\\textrm{which speaks}\quad \textrm{posterior} = \frac{\textrm{likelihood } \times \textrm{ prior}}{\textrm{evidence}} ~.\]
+
+<p>While the likelihood is the one from above, we introduce three new terms here: the posterior, prior, and evidence. The likelihood is multiplied by a prior, a distribution over \(\boldsymbol{\theta}\), that quantifies our believe in the model parameters prior to any training. We can also express zero prior knowledge by using a uniform distribution or a fairly wide Gaussian, when we assume our parameters to have Gaussian distributions. When we have computed the product of likelihood and prior, the evidence normalizes that product to obtain a valid probability distribution. The evidence can be seen as probability for seeing that particular data. After we have performed these computations, we obtain the posterior: the probability distribution of the parameters after seeing data.
+For a new data point \((x_∗, y_*)\) the prediction of the model is obtained by considering
+the predictions made using all possible parameter setting, weighted by their posterior
+probability:</p>
+
+\[p(y_*|\Phi(x_*),\boldsymbol{\Phi},\mathbf{y}) = \int p(y_*|\Phi(x_*),\boldsymbol{\theta})p(\boldsymbol{\theta}|\boldsymbol{\Phi},\mathbf{y})d\boldsymbol{\theta} ~.\]
+
+<p>Problematically this integral becomes intractable for even small models that are non-linear, so that other techniques such as VI and MCMC sampling must be employed. Here we compare both methods for the linear regression case starting with the exact approximation with Markov chain Monte Carlo sampling.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">matplotlib</span>
+<span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+
+<span class="kn">import</span> <span class="nn">scipy.stats</span> <span class="k">as</span> <span class="n">stats</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
+
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="n">sns</span>
+<span class="n">sns</span><span class="p">.</span><span class="nb">set</span><span class="p">()</span>
+
+<span class="n">matplotlib</span><span class="p">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s">'text.usetex'</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="n">matplotlib</span><span class="p">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s">'text.latex.preamble'</span><span class="p">]</span> <span class="o">=</span> <span class="s">r'\usepackage{bm}'</span>
+</code></pre></div></div>
+
+<h3 id="generating-example-data">Generating example data</h3>
+<p>\(y = \theta_0 + \theta_1 x + \epsilon = -1 + x + \epsilon \quad \textrm{with} \quad \epsilon \sim \mathcal{N}(0,0.15)\) .</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="o">**</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">weights</span><span class="p">))]).</span><span class="n">transpose</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">X</span> <span class="o">@</span> <span class="n">weights</span><span class="p">[:,</span><span class="n">np</span><span class="p">.</span><span class="n">newaxis</span><span class="p">]).</span><span class="n">flatten</span><span class="p">()</span>
+
+<span class="n">no_samples</span> <span class="o">=</span> <span class="mi">50</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">no_samples</span><span class="p">)</span>
+
+<span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">std_noise</span> <span class="o">=</span> <span class="mf">1.2</span>
+
+<span class="n">y_true</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
+<span class="n">y_noisy</span> <span class="o">=</span> <span class="n">y_true</span> <span class="o">+</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">std_noise</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_true</span><span class="p">))</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y_true</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">'r'</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s">'--'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">'true'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y_noisy</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">'black'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><img src="/assets/imgs/compare_mcmc_vi_files/compare_mcmc_vi_3_0.png" alt="png" /></p>
+
+<h3 id="markov-chain-monte-carlo-sampling">Markov Chain Monte Carlo Sampling</h3>
+
+<p>One popular technique for approximating the intractable posterior is MCMC sampling, contrary to other methods it makes no assumption concerning the form of the distribution, such as wether it can be approximated by a multivariate Gaussian. They only assume the posterior</p>
+
+\[p(\boldsymbol{\theta}|\boldsymbol{\Phi},\mathbf{y})\]
+
+<p>can be calculated up to normalization constant \(Z\) meaning</p>
+
+\[p(\boldsymbol{\theta}|\boldsymbol{\Phi},\mathbf{y})=\tilde{p}(\boldsymbol{\theta}|\boldsymbol{\Phi},\mathbf{y})/Z~,\]
+
+<p>where \(Z\) denotes the evidence in our case (<a href="http://users.isr.ist.utl.pt/~wurmd/Livros/school/Bishop%20-%20Pattern%20Recognition%20And%20Machine%20Learning%20-%20Springer%20%202006.pdf">Bishop 2006</a>).</p>
+
+<p>In general, sampling methods try to find the expectation of some function \(\mathbf{f}_{\boldsymbol{\theta}}\) w.r.t. the posterior distribution for the model parameter:</p>
+
+\[\mathbb{E}(\mathbf{f}) = \int \mathbf{f}_{\boldsymbol{\theta}}(\mathbf{x}_*)p(\boldsymbol{\theta}|\boldsymbol{\Phi},\mathbf{y})d\boldsymbol{\theta} ~.\]
+
+<p>The integral in above equation is approximated using Monte Carlo sampling:</p>
+
+\[\mathbb{E}(\mathbf{f}) = \frac{1}{M} \sum_{i=1}^M \mathbf{f}_{\boldsymbol{\theta}_i}(\mathbf{x}_i) \quad \textrm{where} \quad \boldsymbol{\theta}_i \sim p(\boldsymbol{\theta}|\boldsymbol{\Phi},\mathbf{y}) ~.\]
+
+<p>Similar, the variance can be denoted by</p>
+
+\[\textrm{Var}[\mathbf{f}] = \frac{1}{M} \mathbb{E}[(\mathbf{f}-\mathbb{E}[\mathbf{f}])^2] ~,\]
+
+<p>if the generated samples from the posterior \(\boldsymbol{\theta}_i\) are independent. For complicated posterior distributions this is mostly impossible, but it still gives an unbiased estimate, if the number of generated samples is high enough (<a href="https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.446.9306&amp;rep=rep1&amp;type=pdf">Neal 1996</a>).</p>
+
+<p>To generate a set of dependent weights \(\boldsymbol{\theta}_i\) a Markov chain can be utilized that has
+the posterior \(p(\boldsymbol{\theta}|\boldsymbol{\Phi},\mathbf{y})\) as its equilibrium distribution. Markov Chains are a sequence of events, where the probability of one event depends only on the state of the previous one. So, one
+samples from a proposal distribution \(q(\boldsymbol{\theta}|\boldsymbol{\theta}_i)\) and maintains a record of the current state \(\boldsymbol{\theta}_i\). A Markov chain is defined by giving an initial distribution for the
+first state of the chain \(\boldsymbol{\theta}_1\) and a transition distribution for a new state \(\boldsymbol{\theta}_{i+1}\) following from the current state \(\boldsymbol{\theta}_i\). A stationary distribution q is established if the distribution
+given by state \(\boldsymbol{\theta}_{i+1}\) is the same as with state \(\boldsymbol{\theta}_i\). If the drawn samples are dependent then early drawn samples need to be discarded, since they usually are not representatives
+of the equilibrium distribution referred to as burn in phase. If the samples are dependent
+the chain also needs much longer to reach its equilibrium distribution (<a href="https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.446.9306&amp;rep=rep1&amp;type=pdf">Neal 1996</a>).</p>
+
+<p>A popular algorithm for MCMC sampling is Metropolis-Hastings (<a href="https://bayes.wustl.edu/Manual/EquationOfState.pdf">Metropolis et al. 1953</a>, <a href="https://academic.oup.com/biomet/article-abstract/57/1/97/284580?redirectedFrom=fulltext">Hastings 1970</a>). The acceptance probability Ai at time step i is given by</p>
+
+\[A_i(\boldsymbol{\theta}_*,\boldsymbol{\theta}_i) = \textrm{min} \left( 1, \frac{q(\boldsymbol{\theta}_i|\boldsymbol{\theta}_*)\tilde{p}(\boldsymbol{\theta}_*)}{q(\boldsymbol{\theta}_*|\boldsymbol{\theta}_i)\tilde{p}(\boldsymbol{\theta}_i)}  \right) ~,\]
+
+<p>where \(\boldsymbol{\theta}_i\) denotes the current state and \(\boldsymbol{\theta}_*\) the drawn proposal state, \(\tilde{p}(\boldsymbol{\theta})\) is the prior of the model parameters. The normalization constants cancel out each other. After the acceptance probability is calculated, a random number \(r\) is drawn from a Uniform distribution \(r \sim \mathcal{U}(0,1)\). If \(A_i &gt; r\) the proposal state is accepted.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">MCMC</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_params</span><span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">num_iter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span> <span class="n">burnin_iter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5000</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">num_iter</span> <span class="o">=</span> <span class="n">num_iter</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">burnin_iter</span> <span class="o">=</span> <span class="n">burnin_iter</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">start_params</span> <span class="o">=</span> <span class="n">start_params</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+
+    <span class="k">def</span> <span class="nf">proposal_fct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">scale_weights</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">scale_std_noise</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scale_weights</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">)):</span>
+            <span class="n">scale_weights</span> <span class="o">=</span> <span class="p">[</span><span class="n">scale_weights</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">params</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">scale</span><span class="o">=</span><span class="n">scale_weights</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">scale</span><span class="o">=</span><span class="n">scale_std_noise</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">metropolis_hastings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">chain</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="p">.</span><span class="n">num_iter</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">start_params</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">chain</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">start_params</span>
+
+        <span class="n">log_post</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="bp">self</span><span class="p">.</span><span class="n">log_posterior</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">model</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">num_iter</span><span class="o">-</span><span class="mi">1</span><span class="p">)):</span>
+            <span class="n">proposal</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">proposal_fct</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">chain</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">posterior_prob</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_post</span><span class="p">(</span><span class="n">proposal</span><span class="p">)</span> <span class="o">-</span> <span class="n">log_post</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">chain</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+            <span class="k">if</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">posterior_prob</span><span class="p">:</span>
+                <span class="bp">self</span><span class="p">.</span><span class="n">chain</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">proposal</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="p">.</span><span class="n">chain</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">chain</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="p">.</span><span class="n">posterior_params</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">chain</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">burnin_iter</span><span class="p">:].</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">posterior_params</span>
+
+    <span class="k">def</span> <span class="nf">posterior_pred</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">y_pred</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="p">.</span><span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">c</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">.</span><span class="n">chain</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">burnin_iter</span><span class="p">:]])</span>
+        <span class="k">return</span> <span class="n">y_pred</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">).</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">y_pred</span><span class="p">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">).</span><span class="n">flatten</span><span class="p">()</span>
+
+    <span class="o">@</span><span class="nb">staticmethod</span>
+    <span class="k">def</span> <span class="nf">log_prior</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">prior_scale_weights</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span> <span class="n">prior_scale_noise</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prior_scale_weights</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">)):</span>
+            <span class="n">prior_scale_weights</span> <span class="o">=</span> <span class="p">[</span><span class="n">prior_scale_weights</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)]</span>
+        <span class="n">log_prior_weights</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="n">stats</span><span class="p">.</span><span class="n">norm</span><span class="p">.</span><span class="n">logpdf</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">psw</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span><span class="p">,</span> <span class="n">psw</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">params</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">prior_scale_weights</span><span class="p">)])</span>
+        <span class="n">log_prior_noise</span> <span class="o">=</span> <span class="n">stats</span><span class="p">.</span><span class="n">uniform</span><span class="p">.</span><span class="n">logpdf</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">prior_scale_noise</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">log_prior_weights</span><span class="p">.</span><span class="nb">sum</span><span class="p">()</span> <span class="o">+</span> <span class="n">log_prior_noise</span>
+
+    <span class="o">@</span><span class="nb">staticmethod</span>
+    <span class="k">def</span> <span class="nf">log_likelihood</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">params</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">log_likelihoods</span> <span class="o">=</span> <span class="n">stats</span><span class="p">.</span><span class="n">norm</span><span class="p">.</span><span class="n">logpdf</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">y_pred</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">log_likelihoods</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">log_posterior</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">log_likelihood</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="p">.</span><span class="n">log_prior</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="variational-inference">Variational Inference</h2>
+
+<p>Coming from the exact but time consuming approximation technique of MCMC we will now go on and revisit an approximate inference technique called Variational inference (VI). We will mainly follow the derivations of <a href="http://users.isr.ist.utl.pt/~wurmd/Livros/school/Bishop%20-%20Pattern%20Recognition%20And%20Machine%20Learning%20-%20Springer%20%202006.pdf">Bishop (2006)</a>. VI has its origin in the 18th century by the work of Euler, Lagrange and others on the calculus of variations, which works on functionals. In contrast to a function that takes a value as input and returns another value, a functional takes a function as input and returns a value. An example for this is the entropy:</p>
+
+\[\textrm{H}[p]=-\int p(x) \log p(x) \, \mathrm{d}x ~,\]
+
+<table>
+  <tbody>
+    <tr>
+      <td>which takes as input a probability distribution and returns a value. The derivative of a function describes how much the output value changes as we make infinitesimal changes to the input value. Consequently, the derivative of a functional describes how much the output value changes, if we make infinitesimal changes to the function. Our goal is to find the function that minimizes the functional. Since many functions (such as neural networks) are very complex because of their high number of parameters, they lend themselves to approximation by restricting the range of functions over which the optimization is performed. In the fully Bayesian treatment of VI all parameters are given prior distributions, where \(\boldsymbol{\theta}\) are our parameters (and all latent variables) and \(\mathbf{X}\) are our observed variables. Our probabilistic model is given by the joint distribution \(p(\mathbf{X},\boldsymbol{\theta})\). Our goal is to find approximations for the posterior the evidence from Bayes theorem. We do so by approximating our intractable posterior distribution $$p(\boldsymbol{\theta}</td>
+      <td>\mathbf{X},\mathbf{y})\(with a simpler distribution\)q(\boldsymbol{\theta})\(from a family of distributions\)\mathcal{Q}$$ e.g. the multivariate Gaussian. The optimization objective is then given by the Kullback-Leibler (KL) divergence between our approximate and the true posterior:</td>
+    </tr>
+  </tbody>
+</table>
+
+\[F(q):=\mathrm{KL}(q(\boldsymbol{\theta})||p(\boldsymbol{\theta}|\mathcal{D}))=\int q(\boldsymbol{\theta})\log \frac{q(\boldsymbol{\theta})}{p(\boldsymbol{\theta}|\mathcal{D})}\,\mathrm{d}\boldsymbol{\theta} \longrightarrow \underset{q(\boldsymbol{\theta}) \in \mathcal{Q}}{\min} ~.
+\label{eq:vi_criterion}\]
+
+<p>Although the KL divergence is not a true distance metric because of its asymmetry, it can be seen as one in this case. The KL divergence is analysed in more depth in this <a href="">post</a>. For now it is enough to now that it is only zero if and only if both distributions are equal. For all other cases it is always greater than zero.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">mu</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">cov</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">]])</span>
+<span class="n">cov1</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">cov</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">cov2</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">cov</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">cov_vi</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axs</span><span class="p">,</span> <span class="p">[</span><span class="n">cov1</span><span class="p">,</span> <span class="n">cov2</span><span class="p">]):</span>
+    <span class="k">for</span> <span class="n">n_std</span> <span class="ow">in</span> <span class="n">np</span><span class="p">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">ell_true</span> <span class="o">=</span> <span class="n">confidence_ellipse</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">cov</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">n_std</span><span class="o">=</span><span class="n">n_std</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s">'#6A83B5'</span><span class="p">)</span>
+        <span class="n">ell_vi</span> <span class="o">=</span> <span class="n">confidence_ellipse</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">cov_vi</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">n_std</span><span class="o">=</span><span class="n">n_std</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s">'#D1895C'</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">title</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axs</span><span class="p">,</span> <span class="p">[</span><span class="s">r'$\mathrm{KL}(q(\bm{\theta})||p(\bm{\theta}))$'</span><span class="p">,</span>
+                           <span class="s">r'$\mathrm{KL}(p(\bm{\theta})||q(\bm{\theta}))$'</span><span class="p">]):</span>
+    <span class="n">ax</span><span class="p">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="o">-</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">])</span>
+    <span class="n">ax</span><span class="p">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="o">-</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">])</span>
+    <span class="n">ax</span><span class="p">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">r'$\theta_0$'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">17</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">r'$\theta_1$'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">17</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">22</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">.</span><span class="n">legend</span><span class="p">([</span><span class="n">ell_true</span><span class="p">,</span> <span class="n">ell_vi</span><span class="p">],</span> <span class="p">[</span><span class="s">r'$\mathcal{N}(\bm{\mu},\bm{\Sigma})$'</span><span class="p">,</span>
+                                   <span class="s">r'$\prod_i \mathcal{N}(\mu_i,\sigma_i)$'</span><span class="p">])</span>
+</code></pre></div></div>
+
+<p><img src="/assets/imgs/compare_mcmc_vi_files/compare_mcmc_vi_7_0.png" alt="png" /></p>
+
+<h3 id="bayesian-linear-regression-with-variational-inference">Bayesian Linear Regression with Variational Inference</h3>
+
+<p>We perform Bayesian linear regression on the same model already used in the blog post about <a href="https://maltetoelle.github.io/linear/regression/2020/10/27/try.html">Bayesian linear regression</a> using Bayes theorem. Recall the likelihood for our observed target variables \(\mathbf{y}\) and the prior distribution for our model parameters \(\boldsymbol{\theta}\) are given by</p>
+
+\[\begin{aligned}
+p(\mathbf{y}|\boldsymbol{\theta}) &amp;= \prod_{n=1}^{N} \mathcal{N}\left( y_n | \boldsymbol{\theta}^T \Phi_n, \beta^{-1} \right) ~, \\
+p(\boldsymbol{\theta}|\alpha) &amp;= \mathcal{N}\left( \mathbf{0},\alpha^{-1}\mathbf{I}_{M+1} \right) ~,
+\end{aligned}\]
+
+<p>with \(\Phi_n=\Phi(x_n)=(x_n^0,x_n^1,...,x_n^{M})^T\) where \(M\) denotes the degree of the fitted polynomial and \(\mathbf{I}_{M+1}\) denotes the identity matrix of size \(M+1\). We now introduce prior distributions over \(\alpha\) and \(\beta\). The conjugate prior for Gaussian distributions is the Wishart distribution or in the one dimensional case the Gamma distribution:</p>
+
+\[\begin{aligned}
+p(\alpha) &amp;= \textrm{Gam}(\alpha|a_0,b_0) ~, \\
+p(\beta) &amp;= \textrm{Gam}(\beta|c_0,d_0) ~.
+\end{aligned}\]
+
+<p>The definition of the Gamma and log Gamma distribution can be found in the appendix at the end of the post. Thus, the joint distribution of all the variables is given by</p>
+
+\[p(\mathbf{y},\boldsymbol{\theta},\alpha,\beta) = p(\mathbf{y}|\boldsymbol{\theta},\beta) p(\boldsymbol{\theta}|\alpha) p(\beta) p(\alpha) ~.\]
+
+<p>By using the mean field approximation the approximation of the posterior \(p(\boldsymbol{\theta},\alpha,\beta)\) is given by the factorization</p>
+
+\[q(\boldsymbol{\theta},\alpha,\beta)=q(\boldsymbol{\theta})q(\alpha)q(\beta) ~.\]
+
+<p>We can find the optimal variational parameters for each of the above distributions by making use of Eq. (4). For each factor, we take the log of the joint distribution over all variables and then average w.r.t. to those variables not in the factor.</p>
+
+<h4 id="variational-density-for-alpha">Variational density for \(\alpha\)</h4>
+
+<p>The log of our optimal variational density \(q^*(\alpha)\) is given by</p>
+
+\[\begin{aligned}
+\log q^*(\alpha) &amp;= \log p(\alpha) + \mathbb{E}\left[ \log p(\boldsymbol{\theta}|\alpha) \right] + \mathcal{Z} \\
+&amp;= (a_0 - 1) \log a - b_0 \alpha + \frac{M}{2} \log \alpha - \frac{\alpha}{2} \mathbb{E} \left[ \boldsymbol{\theta}^T \boldsymbol{\theta} \right] + \mathcal{Z} ~.
+\end{aligned}\]
+
+<p>We notice the above as the parameters of a log Gamma distribution, so, we can perform coefficient comparison and find the optimal variational distribution for \(\alpha\) to be</p>
+
+\[q^*(\alpha) = \textrm{Gam}(\alpha|a_N,b_N) ~,\]
+
+<p>where</p>
+
+\[\begin{aligned}
+a_N &amp;= a_0 + \frac{M}{2} ~, \\
+b_N &amp;= b_0 + \frac{1}{2}\mathbb{E}\left[ \boldsymbol{\theta}^T\boldsymbol{\theta} \right] ~.
+\end{aligned}\]
+
+<h4 id="variational-density-for-boldsymboltheta">Variational density for \(\boldsymbol{\theta}\)</h4>
+
+<p>Similarly, the log of our optimal variational density \(q^*(\theta)\) is given by</p>
+
+\[\begin{aligned}
+\log q^*(\boldsymbol{\theta}) &amp;= \mathbb{E}_{\beta}\left[ \log p(\mathbf{y}|\boldsymbol{\theta},\beta) \right] + \mathbb{E}_{\alpha}\left[ p(\boldsymbol{\theta}|\alpha) \right] + \mathcal{Z} \\
+&amp;\propto -\frac{\mathbb{E}_{\beta}}{2} \sum_{n=1}^{N}\left( y_n - \boldsymbol{\theta}^T\Phi_n \right)^2 - \frac{\mathbb{E}_{\alpha}}{2} \boldsymbol{\theta}^T\boldsymbol{\theta} + \mathcal{Z} \\
+&amp;\propto -\frac{\mathbb{E}_{\beta}}{2} \sum_{n=1}^{N} \left\{-2\boldsymbol{\theta}^T\Phi_n y_n + \left(\boldsymbol{\theta}^T\Phi_n\right)^2 \right\} - \frac{\mathbb{E}_{\alpha}}{2} \boldsymbol{\theta}^T\boldsymbol{\theta} + \mathcal{Z} \\
+&amp;= -\frac{1}{2} \boldsymbol{\theta}^T \left\{ \mathbb{E}_{\beta} \boldsymbol{\Phi}^T\boldsymbol{\Phi} + \mathbb{E}_{\alpha}\mathbf{I} \right\} \boldsymbol{\theta} + \mathbb{E}_{\beta}\boldsymbol{\theta}^T\boldsymbol{\Phi}^T\mathbf{y} + \mathcal{Z} ~.
+\end{aligned}\]
+
+<p>We recognize this as a log normal distribution and find our coefficients to be</p>
+
+\[q^*(\boldsymbol{\theta}) = \mathcal{N}(\boldsymbol{\theta}|\mathbf{m}_N,\mathbf{S}_N) ~,\]
+
+<p>where</p>
+
+\[\begin{aligned}
+\mathbf{m}_N &amp;= \mathbb{E}_{\beta} \mathbf{S}_N \boldsymbol{\Phi}^T \mathbf{y} ~, \\
+\mathbf{S}_N &amp;= \left( \mathbb{E}_{\beta}\boldsymbol{\Phi}^T\boldsymbol{\Phi} + \mathbb{E}_{\alpha} \mathbf{I} \right)^{-1} ~.
+\end{aligned}\]
+
+<h4 id="variational-density-for-beta">Variational Density for \(\beta\)</h4>
+
+<p>As for \(\alpha\) and \(\boldsymbol{\theta}\), the optimal variational density \(q^*(\beta)\) is given by</p>
+
+\[\begin{aligned}
+\log q^*(\beta) &amp;= \log p(\beta) + \mathbb{E}_{\boldsymbol{\theta}}\left[ \log p(\mathbf{y}|\boldsymbol{\theta},\beta) \right] + \mathcal{Z} \\
+&amp;\propto (c_0 - 1)\log \beta - d_0\beta + \frac{N}{2} \log \beta - \frac{\beta}{2} \mathbb{E} \left[ \sum_{n=1}^{N} \left( y_n - \boldsymbol{\theta}^T\Phi_n \right)^2 \right] + \mathcal{Z} \\
+&amp;= \left( \frac{N}{2} + c_0 - 1 \right)\log\beta - d_0\beta - \frac{\beta}{2} \mathbb{E}\left[ \mathbf{y}^T\mathbf{y} -2\boldsymbol{\theta}\boldsymbol{\Phi} \mathbf{y} + \boldsymbol{\theta}^T\boldsymbol{\Phi}^T\boldsymbol{\Phi}\boldsymbol{\theta} \right] + \mathcal{Z} \\
+&amp;= \left( \frac{N}{2} + c_0 - 1 \right)\log\beta -\beta \left\{ d_0 + \frac{1}{2}\mathrm{Tr}\left[ \boldsymbol{\Phi}^T\boldsymbol{\Phi}\, \mathbb{E}\left[ \boldsymbol{\theta}^T\boldsymbol{\theta} \right] \right] - \mathbb{E}\left[ \boldsymbol{\theta}^T \right] \boldsymbol{\Phi}\mathbf{y} + \frac{1}{2}\mathbf{y}^T\mathbf{y} \right\} + \mathcal{Z} \\
+&amp;= \left( \frac{N}{2} + c_0 - 1 \right)\log\beta -\beta \left\{ d_0 + \frac{1}{2}\mathrm{Tr}\left[ \boldsymbol{\Phi}^T\boldsymbol{\Phi}\left( \mathbf{m}_N\mathbf{m}_N^T + \mathbf{S}_N \right) \right] - \mathbf{y}^T\boldsymbol{\Phi}\mathbf{m}_N + \frac{1}{2}\mathbf{y}^T\mathbf{y} \right\} + \mathcal{Z} \\
+&amp;= \left( \frac{N}{2} + c_0 - 1 \right)\log\beta -\beta \left\{ d_0 + \frac{1}{2}\mathrm{Tr}\left[ \boldsymbol{\Phi}^T\boldsymbol{\Phi}\mathbf{S}_N \right] + \frac{1}{2}\mathbf{m}_N^T\boldsymbol{\Phi}^T\boldsymbol{\Phi}\mathbf{m}_N - \mathbf{y}^T\boldsymbol{\Phi}\mathbf{m}_N + \frac{1}{2}\mathbf{y}^T\mathbf{y} \right\} + \mathcal{Z} \\
+&amp;= \left( \frac{N}{2} + c_0 - 1 \right)\log\beta -\frac{\beta}{2} \left\{ 2d_0 + \mathrm{Tr}\left[ \boldsymbol{\Phi}^T\boldsymbol{\Phi}\mathbf{S}_N \right] + \sum_{n=1}^{N}\left( y_n - \mathbf{m}_N^T\Phi_n \right)^2 \right\} + \mathcal{Z} ~.
+\end{aligned}\]
+
+<p>We again recognize this as the coefficients of a log Gamma distribution</p>
+
+\[q^*(\beta) = \textrm{Gam}(\beta|c_N,d_N) ~,\]
+
+<p>where</p>
+
+\[\begin{aligned}
+c_N &amp;= \frac{N}{2} + c_0 ~, \\
+d_N &amp;= d_0 + \frac{1}{2} \left\{ \mathrm{Tr}\left[ \boldsymbol{\Phi}^T\boldsymbol{\Phi}\mathbf{S}_N \right] + \sum_{n=1}^{N} \left( y_n - \mathbf{m}_N^T\Phi_n \right)^2 \right\} ~.
+\end{aligned}\]
+
+<h4 id="estimating-the-missing-moments">Estimating the Missing Moments</h4>
+
+<p>The missing moments of the Gamma distributions for \(\alpha\) and \(\beta\) can be easily estimated from the definition of the distribution.</p>
+
+\[\begin{aligned}
+\mathbb{E}[\alpha] &amp;= \frac{a_N}{b_N} \\
+&amp;= \frac{a_0 + \frac{M}{2}}{b_0 + \frac{1}{2}\mathbb{E}\left[ \boldsymbol{\theta}^T\boldsymbol{\theta} \right]}\\
+&amp;= \frac{a_0 + \frac{M}{2}}{b_0 + \frac{1}{2}\mathbf{m}_N^T\mathbf{m}_N + \textrm{Tr}(\mathbf{S}_N)} \quad \textrm{with} \quad \mathbb{E}\left[ \boldsymbol{\theta}\boldsymbol{\theta}^T \right] = \mathbf{m}_N\mathbf{m}_N^T + \mathbf{S}_N ~, \\
+\mathbb{E}[\beta] &amp;= \frac{c_N}{d_N} \\
+&amp;= \frac{\frac{N}{2} + c_0}{d_0 + \frac{1}{2} \left\{ \mathrm{Tr}\left[ \boldsymbol{\Phi}^T\boldsymbol{\Phi}\mathbf{S}_N \right] + \sum_{n=1}^{N} \left( y_n - \mathbf{m}_N^T\Phi_n \right)^2 \right\}}
+\end{aligned}\]
+
+<p>VI for linear regression is performed by cyclically estimating the parameters \(a_N\), \(b_N\), \(c_N\), \(d_N\), \(\mathbf{m}_N\), and \(\mathbf{S}_N\) with the corresponding update formulas. Which can be done in a small number of lines in code compared to the long derivations above. But before we take a look at the code, we must examine the predictive distribution of the model.</p>
+
+<h4 id="predictive-distribution">Predictive Distribution</h4>
+
+<p>The predictive distribution for new data points \((\mathbf{x}_*,\mathbf{y}_*)\) can easily be evaluated using the Gaussian variational posterior for the parameters</p>
+
+\[\begin{aligned}
+p(\mathbf{y}_*|\mathbf{x}_*,\mathbf{y}) &amp;= \int p(\mathbf{y}_*|\mathbf{x}_*,\boldsymbol{\theta})p(\boldsymbol{\theta}|\mathbf{y})\,d\boldsymbol{\theta} \\
+&amp;= \int p(\mathbf{y}_*|\mathbf{x}_*,\boldsymbol{\theta})q(\boldsymbol{\theta})\,d\boldsymbol{\theta} \\
+&amp;= \int\mathcal{N}\left( \mathbf{y}_*|\boldsymbol{\theta}^T\boldsymbol{\Phi}(\mathbf{x}_*), \mathbb{E}[\beta] \right) \mathcal{N}\left( \boldsymbol{\theta} | \mathbf{m}_N,\mathbf{S}_N \right)\,d\boldsymbol{\theta} \\
+&amp;= \mathcal{N}\left( \mathbf{m}_N^T\boldsymbol{\Phi}(\mathbf{x}_*),\sigma^2(\mathbf{x}_*) \right) \quad \textrm{with} \quad \sigma^2(\mathbf{x}_*) = \frac{1}{\mathbb{E}[\beta]} + \boldsymbol{\Phi}(\mathbf{x}_*)^T \mathbf{S}_N \boldsymbol{\Phi}(\mathbf{x}_*) ~.
+\end{aligned}\]
+
+<p>In the above we incorporate the noise inherent in the observations in our prediction. Contrary to that we will sample our weights from the estimated mean and covariance and treat the noise in the observation as not be a part of the model. Our prediction then becomes</p>
+
+\[\begin{gathered}
+\boldsymbol{\theta}_i \sim \mathcal{N}(\boldsymbol{\theta}|\mathbf{m}_N,\mathbf{S}_N) ~,\\
+y_i = \boldsymbol{\theta}_i^T\boldsymbol{\Phi} ~.
+\end{gathered}\]
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">VI</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_iter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">start_alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">start_beta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+                 <span class="n">a0</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">b0</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">c0</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">d0</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">):</span>
+
+        <span class="c1"># initializing all with 0 corresponds to an infinitely wide prior
+</span>        <span class="bp">self</span><span class="p">.</span><span class="n">a0</span> <span class="o">=</span> <span class="n">a0</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">b0</span> <span class="o">=</span> <span class="n">b0</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">c0</span> <span class="o">=</span> <span class="n">c0</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">d0</span> <span class="o">=</span> <span class="n">d0</span>
+
+        <span class="bp">self</span><span class="p">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">start_alpha</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">beta</span> <span class="o">=</span> <span class="n">start_beta</span>
+
+        <span class="bp">self</span><span class="p">.</span><span class="n">num_iter</span> <span class="o">=</span> <span class="n">num_iter</span>
+
+    <span class="k">def</span> <span class="nf">training</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">pol_grad</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">D</span> <span class="o">=</span> <span class="n">pol_grad</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="o">**</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">D</span><span class="p">)]).</span><span class="n">transpose</span><span class="p">()</span>
+
+        <span class="n">aN</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">a0</span> <span class="o">+</span> <span class="bp">self</span><span class="p">.</span><span class="n">D</span><span class="o">/</span><span class="mi">2</span>
+        <span class="n">cN</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">c0</span> <span class="o">+</span> <span class="n">N</span><span class="o">/</span><span class="mi">2</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">num_iter</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">SN</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">linalg</span><span class="p">.</span><span class="n">inv</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">beta</span> <span class="o">*</span> <span class="n">X</span><span class="p">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">X</span> <span class="o">+</span> <span class="bp">self</span><span class="p">.</span><span class="n">alpha</span> <span class="o">*</span> <span class="n">np</span><span class="p">.</span><span class="n">eye</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">D</span><span class="p">))</span>
+
+            <span class="bp">self</span><span class="p">.</span><span class="n">mN</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">beta</span> <span class="o">*</span> <span class="bp">self</span><span class="p">.</span><span class="n">SN</span> <span class="o">@</span> <span class="n">X</span><span class="p">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">y</span>
+
+            <span class="n">dN</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">d0</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">((</span><span class="n">y</span> <span class="o">-</span> <span class="n">X</span> <span class="o">@</span> <span class="bp">self</span><span class="p">.</span><span class="n">mN</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">).</span><span class="nb">sum</span><span class="p">()</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="p">.</span><span class="n">trace</span><span class="p">(</span><span class="n">X</span><span class="p">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">X</span> <span class="o">@</span> <span class="bp">self</span><span class="p">.</span><span class="n">SN</span><span class="p">)</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">beta</span> <span class="o">=</span> <span class="n">cN</span><span class="o">/</span><span class="n">dN</span>
+
+            <span class="n">bN</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">b0</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="bp">self</span><span class="p">.</span><span class="n">mN</span><span class="p">.</span><span class="n">T</span> <span class="o">@</span> <span class="bp">self</span><span class="p">.</span><span class="n">mN</span> <span class="o">+</span> <span class="n">np</span><span class="p">.</span><span class="n">trace</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">SN</span><span class="p">)</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">aN</span><span class="o">/</span><span class="n">bN</span>
+
+        <span class="c1"># estimated variance in the training data
+</span>        <span class="bp">self</span><span class="p">.</span><span class="n">x_var</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="bp">self</span><span class="p">.</span><span class="n">beta</span><span class="p">)</span> <span class="o">+</span> <span class="n">X</span> <span class="o">@</span> <span class="bp">self</span><span class="p">.</span><span class="n">SN</span> <span class="o">@</span> <span class="n">X</span><span class="p">.</span><span class="n">T</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">mN</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">SN</span>
+
+    <span class="k">def</span> <span class="nf">posterior_pred</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_pred</span><span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="n">x_pred</span><span class="o">**</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">D</span><span class="p">)]).</span><span class="n">transpose</span><span class="p">()</span>
+
+        <span class="c1">#mean = X @ self.mN
+</span>        <span class="c1">#var = np.array([1/self.beta + x @ self.SN @ x.T for x in X])
+</span>
+        <span class="n">preds</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+            <span class="c1">#pred = np.random.normal(mean, np.sqrt(var))
+</span>            <span class="n">weight_sample</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">multivariate_normal</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">mN</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">SN</span><span class="p">)</span>
+            <span class="n">pred</span> <span class="o">=</span> <span class="n">X</span> <span class="o">@</span> <span class="n">weight_sample</span><span class="p">[:,</span><span class="n">np</span><span class="p">.</span><span class="n">newaxis</span><span class="p">]</span>
+            <span class="n">preds</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">pred</span><span class="p">)</span>
+        <span class="n">preds</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">preds</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">preds</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">).</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">preds</span><span class="p">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">).</span><span class="n">flatten</span><span class="p">()</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">start_params_mcmc</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span>
+<span class="n">mcmc</span> <span class="o">=</span> <span class="n">MCMC</span><span class="p">(</span><span class="n">start_params</span><span class="o">=</span><span class="n">start_params_mcmc</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+<span class="n">posterior_params_mcmc</span> <span class="o">=</span> <span class="n">mcmc</span><span class="p">.</span><span class="n">metropolis_hastings</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y_noisy</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>100%|██████████| 9999/9999 [00:16&lt;00:00, 602.29it/s]
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">vi</span> <span class="o">=</span> <span class="n">VI</span><span class="p">(</span><span class="n">num_iter</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">w_mean_vi</span><span class="p">,</span> <span class="n">w_cov_vi</span> <span class="o">=</span> <span class="n">vi</span><span class="p">.</span><span class="n">training</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y_noisy</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>100%|██████████| 100/100 [00:00&lt;00:00, 4991.97it/s]
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">x_pred</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+
+<span class="n">y_true_pred</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">x_pred</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
+
+<span class="n">y_pred_mcmc_mean</span><span class="p">,</span> <span class="n">y_pred_mcmc_std</span> <span class="o">=</span> <span class="n">mcmc</span><span class="p">.</span><span class="n">posterior_pred</span><span class="p">(</span><span class="n">x_pred</span><span class="p">)</span>
+<span class="n">y_pred_vi_mean</span><span class="p">,</span> <span class="n">y_pred_vi_std</span> <span class="o">=</span> <span class="n">vi</span><span class="p">.</span><span class="n">posterior_pred</span><span class="p">(</span><span class="n">x_pred</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_pred</span><span class="p">,</span> <span class="n">y_true_pred</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">'r'</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s">'--'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">'true'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_pred</span><span class="p">,</span> <span class="n">y_pred_vi_mean</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">'VI'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">x_pred</span><span class="p">,</span> <span class="n">y_pred_vi_mean</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">y_pred_vi_std</span><span class="p">,</span> <span class="n">y_pred_vi_mean</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">y_pred_vi_std</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_pred</span><span class="p">,</span> <span class="n">y_pred_mcmc_mean</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">'MCMC'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">'#D1895C'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">x_pred</span><span class="p">,</span> <span class="n">y_pred_mcmc_mean</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">y_pred_mcmc_std</span><span class="p">,</span> <span class="n">y_pred_mcmc_mean</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">y_pred_mcmc_std</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">'#D1895C'</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y_noisy</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">'black'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">r'$x$'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">17</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">r'$y$'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">17</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">'reg_mcmc_vi.pdf'</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s">'tight'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><img src="/assets/imgs/compare_mcmc_vi_files/compare_mcmc_vi_12_0.png" alt="png" /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">mcmc</span><span class="p">.</span><span class="n">chain</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">axs</span><span class="p">):</span>
+    <span class="c1"># mcmc
+</span>    <span class="n">samples</span> <span class="o">=</span> <span class="n">mcmc</span><span class="p">.</span><span class="n">chain</span><span class="p">[</span><span class="n">mcmc</span><span class="p">.</span><span class="n">burnin_iter</span><span class="o">-</span><span class="mi">1</span><span class="p">:,</span><span class="n">i</span><span class="p">]</span>
+    <span class="n">x_w_viz</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">samples</span><span class="p">.</span><span class="nb">min</span><span class="p">(),</span> <span class="n">samples</span><span class="p">.</span><span class="nb">max</span><span class="p">(),</span> <span class="mi">100</span><span class="p">)</span>
+
+    <span class="n">mu_mcmc</span><span class="p">,</span> <span class="n">std_mcmc</span> <span class="o">=</span> <span class="n">stats</span><span class="p">.</span><span class="n">norm</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">axs</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># mcmc
+</span>        <span class="n">ax</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_w_viz</span><span class="p">,</span> <span class="n">stats</span><span class="p">.</span><span class="n">norm</span><span class="p">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x_w_viz</span><span class="p">,</span> <span class="n">mu_mcmc</span><span class="p">,</span> <span class="n">std_mcmc</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s">'mcmc'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">'#D1895C'</span><span class="p">)</span>
+        <span class="c1"># vi
+</span>        <span class="n">ax</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_w_viz</span><span class="p">,</span> <span class="n">stats</span><span class="p">.</span><span class="n">norm</span><span class="p">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x_w_viz</span><span class="p">,</span> <span class="n">vi</span><span class="p">.</span><span class="n">mN</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">vi</span><span class="p">.</span><span class="n">SN</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">i</span><span class="p">]),</span> <span class="n">label</span><span class="o">=</span><span class="s">'vi'</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">weights</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s">'r'</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s">'--'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">'true'</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">.</span><span class="n">title</span><span class="p">.</span><span class="n">set_text</span><span class="p">(</span><span class="s">r'posterior -- $w_%d$'</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">vi_std_mean</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">vi</span><span class="p">.</span><span class="n">x_var</span><span class="p">.</span><span class="n">mean</span><span class="p">())</span>
+        <span class="n">vi_std_std</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">vi</span><span class="p">.</span><span class="n">x_var</span><span class="p">).</span><span class="n">std</span><span class="p">()</span>
+        <span class="n">new_x</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">mu_mcmc</span><span class="o">-</span><span class="mf">3.5</span><span class="o">*</span><span class="n">std_mcmc</span><span class="p">,</span> <span class="n">mu_mcmc</span><span class="o">+</span><span class="mf">3.5</span><span class="o">*</span><span class="n">std_mcmc</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="c1"># mcmc
+</span>        <span class="n">ax</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">new_x</span><span class="p">,</span> <span class="n">stats</span><span class="p">.</span><span class="n">norm</span><span class="p">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">new_x</span><span class="p">,</span> <span class="n">mu_mcmc</span><span class="p">,</span> <span class="n">std_mcmc</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s">'mcmc'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">'#D1895C'</span><span class="p">)</span>
+        <span class="c1"># vi
+</span>        <span class="n">ax</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">new_x</span><span class="p">,</span> <span class="n">stats</span><span class="p">.</span><span class="n">norm</span><span class="p">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">new_x</span><span class="p">,</span> <span class="n">vi_std_mean</span><span class="p">,</span> <span class="n">vi_std_std</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s">'vi'</span><span class="p">)</span>
+
+        <span class="n">ax</span><span class="p">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">std_noise</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">'r'</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s">'--'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">'true'</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">.</span><span class="n">title</span><span class="p">.</span><span class="n">set_text</span><span class="p">(</span><span class="s">r'posterior -- $\sigma_{noise}$'</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><img src="/assets/imgs/compare_mcmc_vi_files/compare_mcmc_vi_13_0.png" alt="png" /></p>
+
+<h2 id="appendix">Appendix</h2>
+
+<h3 id="log-gamma-distribution">(Log) Gamma distribution</h3>
+
+\[\begin{aligned}
+\textrm{Gam}(x|a,b) &amp;= \frac{1}{\Gamma (a)} b^{a} x^{a-1} e^{-bx} \\
+&amp;= \frac{1}{(a-1)!} b^{a} x^{a-1} e^{-bx} \\
+\log \textrm{Gam}(x|a,b) &amp;= \underbrace{-\log\left((a-1)!\right) + a\log b}_{\textrm{const. w.r.t. }x} + (a-1)\log x - bx
+\end{aligned}\]
+
+<h3 id="code-for-drawing-confidence-ellipse">Code for Drawing Confidence Ellipse</h3>
+
+<p>From official matplotlib <a href="https://matplotlib.org/devdocs/gallery/statistics/confidence_ellipse.html">documentation</a>.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">matplotlib.patches</span> <span class="kn">import</span> <span class="n">Ellipse</span>
+<span class="kn">import</span> <span class="nn">matplotlib.transforms</span> <span class="k">as</span> <span class="n">transforms</span>
+
+<span class="c1">#def confidence_ellipse(x, y, ax, n_std=3.0, facecolor='none', edgecolor='black', **kwargs):
+</span><span class="k">def</span> <span class="nf">confidence_ellipse</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">cov</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">n_std</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s">'none'</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s">'black'</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="s">"""
+    Create a plot of the covariance confidence ellipse of *x* and *y*.
+    From: https://matplotlib.org/devdocs/gallery/statistics/confidence_ellipse.html
+
+    Parameters
+    ----------
+    x, y : array-like, shape (n, )
+        Input data.
+
+    ax : matplotlib.axes.Axes
+        The axes object to draw the ellipse into.
+
+    n_std : float
+        The number of standard deviations to determine the ellipse's radiuses.
+
+    **kwargs
+        Forwarded to `~matplotlib.patches.Ellipse`
+
+    Returns
+    -------
+    matplotlib.patches.Ellipse
+    """</span>
+    <span class="c1">#if x.size != y.size:
+</span>    <span class="c1">#    raise ValueError("x and y must be the same size")
+</span>
+    <span class="c1">#cov = np.cov(x, y)
+</span>    <span class="n">pearson</span> <span class="o">=</span> <span class="n">cov</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">np</span><span class="p">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">cov</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">cov</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="c1"># Using a special case to obtain the eigenvalues of this
+</span>    <span class="c1"># two-dimensionl dataset.
+</span>    <span class="n">ell_radius_x</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">pearson</span><span class="p">)</span>
+    <span class="n">ell_radius_y</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">pearson</span><span class="p">)</span>
+    <span class="n">ellipse</span> <span class="o">=</span> <span class="n">Ellipse</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="n">ell_radius_x</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">ell_radius_y</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
+                      <span class="n">facecolor</span><span class="o">=</span><span class="n">facecolor</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="n">edgecolor</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="c1"># Calculating the stdandard deviation of x from
+</span>    <span class="c1"># the squareroot of the variance and multiplying
+</span>    <span class="c1"># with the given number of standard deviations.
+</span>    <span class="n">scale_x</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">cov</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">n_std</span>
+    <span class="n">mean_x</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">mu</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="c1"># calculating the stdandard deviation of y ...
+</span>    <span class="n">scale_y</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">cov</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">n_std</span>
+    <span class="n">mean_y</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">mu</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">transf</span> <span class="o">=</span> <span class="n">transforms</span><span class="p">.</span><span class="n">Affine2D</span><span class="p">()</span> \
+        <span class="p">.</span><span class="n">rotate_deg</span><span class="p">(</span><span class="mi">45</span><span class="p">)</span> \
+        <span class="p">.</span><span class="n">scale</span><span class="p">(</span><span class="n">scale_x</span><span class="p">,</span> <span class="n">scale_y</span><span class="p">)</span> \
+        <span class="p">.</span><span class="n">translate</span><span class="p">(</span><span class="n">mean_x</span><span class="p">,</span> <span class="n">mean_y</span><span class="p">)</span>
+
+    <span class="n">ellipse</span><span class="p">.</span><span class="n">set_transform</span><span class="p">(</span><span class="n">transf</span> <span class="o">+</span> <span class="n">ax</span><span class="p">.</span><span class="n">transData</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ax</span><span class="p">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">ellipse</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+</code></pre></div></div>
+
+  </div><a class="u-url" href="/linear/regression/vi/mcmc/2020/11/18/compare_mcmc_vi.html" hidden></a>
+</article>
+<div class="footer">
+ <div class="cookie-warning">
+  <h1>Cookie Warning</h1>
+  <p>I hereby have to draw your intention to the fact that this site uses cookies for a better interaction with this site. Nothing is saved for advertising.</p>
+  <div class="cookie-btns">
+   <input type="button" value="Got it" id="cookie-yes" />
+   <input type="button" value="No thanks" id="cookie-no" />
+  </div>
+ </div>
+ <div class="footer-personal">
+  <h2>Malte Tölle</h2>
+  <p>Machine Learning and Computer Vision</p>
+ </div>
+ <div class="footer-links">
+ <a href="mailto:malte.toelle@gmail.com" ><img src="/assets/imgs/mail.svg" class="footer-social-media" /></a>
+ <a href="/assets//pdfs/CV.pdf" ><img src="/assets/imgs/cv.svg" class="footer-social-media" /></a>
+ <a href="https://github.com/maltetoelle" ><img src="/assets/imgs/github.svg" class="footer-social-media" /></a>
+ <a href="https://www.linkedin.com/in/malte-t%C3%B6lle-96439b1a0/" ><img src="/assets/imgs/linkedin.svg" class="footer-social-media" /></a>
+</div>
+
+</div>
+
+
+       </div>
+      </div>
+
+    </main><div class="footer">
+ <div class="cookie-warning">
+  <h1>Cookie Warning</h1>
+  <p>I hereby have to draw your intention to the fact that this site uses cookies for a better interaction with this site. Nothing is saved for advertising.</p>
+  <div class="cookie-btns">
+   <input type="button" value="Got it" id="cookie-yes" />
+   <input type="button" value="No thanks" id="cookie-no" />
+  </div>
+ </div>
+ <div class="footer-personal">
+  <h2>Malte Tölle</h2>
+  <p>Machine Learning and Computer Vision</p>
+ </div>
+ <div class="footer-links">
+ <a href="mailto:malte.toelle@gmail.com" ><img src="/assets/imgs/mail.svg" class="footer-social-media" /></a>
+ <a href="/assets//pdfs/CV.pdf" ><img src="/assets/imgs/cv.svg" class="footer-social-media" /></a>
+ <a href="https://github.com/maltetoelle" ><img src="/assets/imgs/github.svg" class="footer-social-media" /></a>
+ <a href="https://www.linkedin.com/in/malte-t%C3%B6lle-96439b1a0/" ><img src="/assets/imgs/linkedin.svg" class="footer-social-media" /></a>
+</div>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
+  <script src="/assets/js/script.js" ></script>
+  </body>
+
+</html>

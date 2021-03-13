@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Linear Regression with Variational Inference and Markov Chain Monte Carlo Sampling"
-date: 2021-03-13 11:47:00 +0100
+date: 2020-11-18 11:47:00 +0100
 categories: linear regression vi mcmc
 ---
 
@@ -87,7 +87,15 @@ plt.show()
 
 ### Markov Chain Monte Carlo Sampling
 
-One popular technique for approximating the intractable posterior is MCMC sampling, contrary to other methods it makes no assumption concerning the form of the distribution, such as wether it can be approximated by a multivariate Gaussian. They only assume the posterior $$p(\boldsymbol{\theta}|\boldsymbol{\Phi},\mathbf{y})$$ can be calculated up to normalization constant $$Z$$ meaning , where $$Z$$ denotes the evidence in our case (<a href="http://users.isr.ist.utl.pt/~wurmd/Livros/school/Bishop%20-%20Pattern%20Recognition%20And%20Machine%20Learning%20-%20Springer%20%202006.pdf">Bishop 2006</a>).
+One popular technique for approximating the intractable posterior is MCMC sampling, contrary to other methods it makes no assumption concerning the form of the distribution, such as wether it can be approximated by a multivariate Gaussian. They only assume the posterior
+
+$$p(\boldsymbol{\theta}|\boldsymbol{\Phi},\mathbf{y})$$
+
+can be calculated up to normalization constant $$Z$$ meaning
+
+$$p(\boldsymbol{\theta}|\boldsymbol{\Phi},\mathbf{y})=\tilde{p}(\boldsymbol{\theta}|\boldsymbol{\Phi},\mathbf{y})/Z~,$$
+
+where $$Z$$ denotes the evidence in our case (<a href="http://users.isr.ist.utl.pt/~wurmd/Livros/school/Bishop%20-%20Pattern%20Recognition%20And%20Machine%20Learning%20-%20Springer%20%202006.pdf">Bishop 2006</a>).
 
 In general, sampling methods try to find the expectation of some function $$\mathbf{f}_{\boldsymbol{\theta}}$$ w.r.t. the posterior distribution for the model parameter:
 
@@ -177,14 +185,12 @@ Coming from the exact but time consuming approximation technique of MCMC we will
 
 $$\textrm{H}[p]=-\int p(x) \log p(x) \, \mathrm{d}x ~,$$
 
-which takes as input a probability distribution and returns a value. The derivative of a function describes how much the output value changes as we make infinitesimal changes to the input value. Consequently, the derivative of a functional describes how much the output value changes, if we make infinitesimal changes to the function. Our goal is to find the function that minimizes the functional. Since many functions (such as neural networks) are very complex because of their high number of parameters, they lend themselves to approximation by restricting the range of functions over which the optimization is performed.
+which takes as input a probability distribution and returns a value. The derivative of a function describes how much the output value changes as we make infinitesimal changes to the input value. Consequently, the derivative of a functional describes how much the output value changes, if we make infinitesimal changes to the function. Our goal is to find the function that minimizes the functional. Since many functions (such as neural networks) are very complex because of their high number of parameters, they lend themselves to approximation by restricting the range of functions over which the optimization is performed. In the fully Bayesian treatment of VI all parameters are given prior distributions, where $$\boldsymbol{\theta}$$ are our parameters (and all latent variables) and $$\mathbf{X}$$ are our observed variables. Our probabilistic model is given by the joint distribution $$p(\mathbf{X},\boldsymbol{\theta})$$. Our goal is to find approximations for the posterior the evidence from Bayes theorem. We do so by approximating our intractable posterior distribution $$p(\boldsymbol{\theta}|\mathbf{X},\mathbf{y})$$ with a simpler distribution $$q(\boldsymbol{\theta})$$ from a family of distributions $$\mathcal{Q}$$ e.g. the multivariate Gaussian. The optimization objective is then given by the Kullback-Leibler (KL) divergence between our approximate and the true posterior:
 
-In the fully Bayesian treatment of VI all parameters are given prior distributions, where $$\boldsymbol{\theta}$$ are our parameters (and all latent variables) and $$\mathbf{X}$$ are our observed variables. Our probabilistic model is given by the joint distribution $$p(\mathbf{X},\boldsymbol{\theta})$$. Our goal is to find approximations for the posterior the evidence from Bayes theorem. We do so by approximating our intractable posterior distribution $$p(\boldsymbol{\theta}|\mathbf{X},\mathbf{y})$$ with a simpler distribution $$q(\boldsymbol{\theta})$$ from a family of distributions $$\mathcal{Q}$$ e.g. the multivariate Gaussian. The optimization objective is then given by the Kullback-Leibler (KL) divergence between our approximate and the true posterior:
-
-\begin{equation*}
+$$
 F(q):=\mathrm{KL}(q(\boldsymbol{\theta})||p(\boldsymbol{\theta}|\mathcal{D}))=\int q(\boldsymbol{\theta})\log \frac{q(\boldsymbol{\theta})}{p(\boldsymbol{\theta}|\mathcal{D})}\,\mathrm{d}\boldsymbol{\theta} \longrightarrow \underset{q(\boldsymbol{\theta}) \in \mathcal{Q}}{\min} ~.
-\label{eq:vi_criterion}\tag{1}
-\end{equation*}
+\label{eq:vi_criterion}
+$$
 
 Although the KL divergence is not a true distance metric because of its asymmetry, it can be seen as one in this case. The KL divergence is analysed in more depth in this <a href="">post</a>. For now it is enough to now that it is only zero if and only if both distributions are equal. For all other cases it is always greater than zero.
 
